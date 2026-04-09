@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indicator Detail | ThinkScript Collection</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero hero-compact">
+    <div class="container">
+      <a class="back-link" href="index.html">&larr; Back to index</a>
+      <p class="eyebrow">Indicator Detail</p>
+      <h1 id="indicator-title">Loading indicator...</h1>
+      <p id="indicator-description" class="lead">Preparing the matching chart preview and script file.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="detail-layout">
+      <article class="panel">
+        <h2>Chart Preview</h2>
+        <div id="indicator-gallery" class="detail-gallery"></div>
+      </article>
+
+      <article class="panel">
+        <div class="detail-actions">
+          <span class="tag">ThinkScript</span>
+          <a id="script-link" class="button-link" href="#">Open raw file</a>
+        </div>
+        <p><strong>Source:</strong> <code id="script-path"></code></p>
+      </article>
+
+      <article class="panel">
+        <h2>Script File</h2>
+        <iframe id="script-frame" class="script-frame" src="about:blank" title="ThinkScript source"></iframe>
+      </article>
+    </section>
+  </main>
+
+  <script src="scripts/site.js"></script>
+</body>
+</html>
