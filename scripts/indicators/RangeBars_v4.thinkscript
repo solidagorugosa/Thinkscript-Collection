@@ -1,0 +1,62 @@
+# Written by Solidago
+#adjust value in function band variable & Range Length to adjust functionlabel threshold
+#adjusting rangethreshold will change the value a candles range must exceed to be counted in detailedlabels
+
+declare lower;
+
+input rangeLength = 30;
+input rangeThreshold = 50;
+input showDetailedLabels = no;
+input showFunctionLabels = no;
+
+
+def range = high - low;
+plot RangeBars = range;
+RangeBars.SetPaintingStrategy(PaintingStrategy.HISTOGRAM);
+RangeBars.SetLineWeight(1);
+RangeBars.AssignValueColor(if close > open then Color.GRAY else Color.BLACK);
+
+def RangeMA = SimpleMovingAvg(range, rangeLength);
+plot MA = RangeMA;
+MA.SetLineWeight(2);
+MA.SetDefaultColor(Color.Blue);
+
+def exceedsRangeMA = RangeBars > RangeMA;
+RangeBars.AssignValueColor(if close > open and exceedsRangeMA then Color.BLUE else if open > close and exceedsRangeMA then Color.RED else if close > open then Color.GRAY else Color.BLACK);
+
+plot OpenCloseBars = AbsValue(open - close);
+OpenCloseBars.SetPaintingStrategy(PaintingStrategy.HISTOGRAM);
+OpenCloseBars.SetLineWeight(4);
+OpenCloseBars.AssignValueColor(if close > open and exceedsRangeMA then Color.BLUE else if open > close and exceedsRangeMA then Color.RED else if close > open then Color.GRAY else Color.BLACK);
+
+input multiple1 = 0.75;
+input multiple2 = 1.5;
+input multiple3 = 2.0;
+input Function = 2.0;
+
+plot lowBand = RangeMA * multiple1;
+plot secondBand = RangeMA * multiple2;
+plot thirdband = RangeMA * multiple3;
+plot functionband = RangeMA * Function;
+
+def barAboveFunctionBand = RangeBars > functionband;
+def closeAboveOpen = close > open;
+
+def countCloseAboveOpen = TotalSum(if barAboveFunctionBand and closeAboveOpen then 1 else 0);
+def countCloseBelowOpen = TotalSum(if barAboveFunctionBand and !closeAboveOpen then 1 else 0);
+
+def exceedsThreshold = range > rangeThreshold;
+def totalExceedsThreshold = TotalSum(if exceedsThreshold then 1 else 0);
+def thresholdCloseAboveOpen = TotalSum(if exceedsThreshold and closeAboveOpen then 1 else 0);
+def thresholdCloseBelowOpen = TotalSum(if exceedsThreshold and !closeAboveOpen then 1 else 0);
+
+AddLabel(showFunctionLabels, "G: " + countCloseAboveOpen, Color.GRAY);
+AddLabel(showFunctionLabels, "R: " + countCloseBelowOpen, Color.GRAY);
+
+AddLabel(yes, "Total > " + rangeThreshold + ": " + totalExceedsThreshold, Color.GRAY);
+AddLabel(showDetailedLabels, "G > " + rangeThreshold + ": " + thresholdCloseAboveOpen, Color.GRAY);
+AddLabel(showDetailedLabels, "R > " + rangeThreshold + ": " + thresholdCloseBelowOpen, Color.GRAY);
+
+def candleCount = BarNumber();
+
+AddLabel(showDetailedLabels, "Net Count: " + candleCount, Color.GRAY);

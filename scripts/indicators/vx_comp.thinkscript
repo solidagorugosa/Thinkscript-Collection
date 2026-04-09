@@ -1,0 +1,79 @@
+# vx_comp
+# Overlay volatility futures contracts to observe historical instances of shifts in the front month contract to contango/backwardation
+# Written by Solidago
+
+declare lower;
+
+input showBubbles = yes;
+input showLabels = yes;
+
+def Year = GetYear();
+def Year_Ext = Year - 2000;
+def agg = AggregationPeriod.DAY;
+
+def lastBar = !IsNaN(close) and IsNaN(close[-1]);
+
+def VX_Future_1 = Close(symbol = "/VXF" + Year_Ext, period = agg);
+def VX_Future_2 = Close(symbol = "/VXG" + Year_Ext, period = agg);
+def VX_Future_3 = Close(symbol = "/VXH" + Year_Ext, period = agg);
+def VX_Future_4 = Close(symbol = "/VXJ" + Year_Ext, period = agg);
+def VX_Future_5 = Close(symbol = "/VXK" + Year_Ext, period = agg);
+def VX_Future_6 = Close(symbol = "/VXM" + Year_Ext, period = agg);
+def VX_Future_7 = Close(symbol = "/VXN" + Year_Ext, period = agg);
+def VX_Future_8 = Close(symbol = "/VXQ" + Year_Ext, period = agg);
+def VX_Future_9 = Close(symbol = "/VXU" + Year_Ext, period = agg);
+def VX_Future_10 = Close(symbol = "/VXV" + Year_Ext, period = agg);
+def VX_Future_11 = Close(symbol = "/VXX" + Year_Ext, period = agg);
+def VX_Future_12 = Close(symbol = "/VXZ" + Year_Ext, period = agg);
+
+plot VX_Future_1_Plot = VX_Future_1;
+plot VX_Future_2_Plot = VX_Future_2;
+plot VX_Future_3_Plot = VX_Future_3;
+plot VX_Future_4_Plot = VX_Future_4;
+plot VX_Future_5_Plot = VX_Future_5;
+plot VX_Future_6_Plot = VX_Future_6;
+plot VX_Future_7_Plot = VX_Future_7;
+plot VX_Future_8_Plot = VX_Future_8;
+plot VX_Future_9_Plot = VX_Future_9;
+plot VX_Future_10_Plot = VX_Future_10;
+plot VX_Future_11_Plot = VX_Future_11;
+plot VX_Future_12_Plot = VX_Future_12;
+
+VX_Future_1_Plot.SetDefaultColor(Color.RED);
+VX_Future_2_Plot.SetDefaultColor(Color.VIOLET);
+VX_Future_3_Plot.SetDefaultColor(Color.DARK_RED);
+VX_Future_4_Plot.SetDefaultColor(CreateColor(102, 51, 0));
+VX_Future_5_Plot.SetDefaultColor(Color.BLUE);
+VX_Future_6_Plot.SetDefaultColor(CreateColor(25, 0, 51));
+VX_Future_7_Plot.SetDefaultColor(Color.MAGENTA);
+VX_Future_8_Plot.SetDefaultColor(Color.DARK_GRAY);
+VX_Future_9_Plot.SetDefaultColor(Color.GRAY);
+VX_Future_10_Plot.SetDefaultColor(Color.DARK_ORANGE);
+VX_Future_11_Plot.SetDefaultColor(Color.DARK_GREEN);
+VX_Future_12_Plot.SetDefaultColor(Color.BLACK);
+
+AddLabel(showLabels, "January", Color.RED);
+AddLabel(showLabels, "February", Color.VIOLET);
+AddLabel(showLabels, "March", Color.DARK_RED);
+AddLabel(showLabels, "April", CreateColor(102, 51, 0));
+AddLabel(showLabels, "May", Color.BLUE);
+AddLabel(showLabels, "June", CreateColor(25, 0, 51));
+AddLabel(showLabels, "July", Color.MAGENTA);
+AddLabel(showLabels, "August", Color.DARK_GRAY);
+AddLabel(showLabels, "September", Color.GRAY);
+AddLabel(showLabels, "October", Color.DARK_ORANGE);
+AddLabel(showLabels, "November", Color.DARK_GREEN);
+AddLabel(showLabels, "December", Color.BLACK);
+
+AddChartBubble(showBubbles and lastBar, VX_Future_1, "Jan", Color.RED, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_2, "Feb", Color.VIOLET, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_3, "Mar", Color.DARK_RED, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_4, "Apr", CreateColor(102, 51, 0), yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_5, "May", Color.BLUE, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_6, "Jun", CreateColor(25, 69, 64), yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_7, "Jul", Color.MAGENTA, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_8, "Aug", Color.DARK_GRAY, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_9, "Sep", Color.GRAY, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_10, "Oct", Color.DARK_ORANGE, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_11, "Nov", Color.DARK_GREEN, yes);
+AddChartBubble(showBubbles and lastBar, VX_Future_12, "Dec", CreateColor(15, 59, 44), yes);

@@ -1,0 +1,25 @@
+"GapDistance_Threshold"
+#Gap_Distance_Threshold
+# This thinkscript plots the range distance between session open/closes as numerical values above and below candles respective to the direction of the change in price. The user can adjust a value to define a threshhold which will trigger the printing of a chevron when that threshhold is exceeded. 
+#Written by Solidago
+
+declare upper;
+
+input gapThreshold = 100;
+
+def gap = open - close[1];
+
+plot gapAbove = if gap >= 0 then gap else Double.NaN;
+gapAbove.SetPaintingStrategy(PaintingStrategy.VALUES_ABOVE);
+gapAbove.AssignValueColor(Color.BLACK);
+
+plot gapBelow = if gap < 0 then gap else Double.NaN;
+gapBelow.SetPaintingStrategy(PaintingStrategy.VALUES_BELOW);
+gapBelow.AssignValueColor(Color.BLACK);
+
+def significantGap = AbsValue(gap) >= gapThreshold;
+
+plot closeLevelChevron = if significantGap[1] then close else Double.NaN;
+closeLevelChevron.SetPaintingStrategy(PaintingStrategy.TRIANGLES);
+closeLevelChevron.SetDefaultColor(Color.BLUE);
+closeLevelChevron.SetLineWeight(3);

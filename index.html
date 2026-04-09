@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThinkScript Portfolio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <p class="eyebrow">Interview Portfolio</p>
+      <h1>ThinkScript Collection</h1>
+      <p class="lead">
+        A clean showcase of ThinkScript indicators, strategies, and scans with matching chart visuals.
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>How to Use This Page</h2>
+      <ul>
+        <li>Add your exported ThinkScript files under <code>scripts/</code>.</li>
+        <li>Add screenshots under <code>images/</code>.</li>
+        <li>Duplicate a card below for each project you want to discuss.</li>
+        <li>Publish the repo with GitHub Pages for a polished interview link.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Featured Projects</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="image-placeholder">Add drawdown chart screenshot here</div>
+          <div class="card-body">
+            <span class="tag">Indicator</span>
+            <h3>Drawdown From All Time High</h3>
+            <p>Plots the percentage decline from the running all-time high and labels both current and maximum drawdown.</p>
+            <p><strong>Script:</strong> <code>scripts/indicators/drawdown-from-all-time-high.thinkscript</code></p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="image-placeholder">Add RangeBars chart screenshot here</div>
+          <div class="card-body">
+            <span class="tag">Indicator</span>
+            <h3>RangeBars_v4</h3>
+            <p>Shows candle range histograms, moving-average bands, and threshold-based label counts for price expansion analysis.</p>
+            <p><strong>Script:</strong> <code>scripts/indicators/RangeBars_v4.thinkscript</code></p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="image-placeholder">Add average range chart screenshot here</div>
+          <div class="card-body">
+            <span class="tag">Indicator</span>
+            <h3>AverageRangeDraw_lite</h3>
+            <p>Calculates average daily range and overlays projected levels from the daily high, low, and open.</p>
+            <p><strong>Script:</strong> <code>scripts/indicators/AverageRangeDraw_lite.thinkscript</code></p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="image-placeholder">Add net volume chart screenshot here</div>
+          <div class="card-body">
+            <span class="tag">Indicator</span>
+            <h3>NetVolume_NQ</h3>
+            <p>Combines traded volume from NQ-linked instruments to show broad participation and possible capitulatory spikes.</p>
+            <p><strong>Script:</strong> <code>scripts/indicators/NetVolume_NQ.thinkscript</code></p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="image-placeholder">Add leadership chart screenshot here</div>
+          <div class="card-body">
+            <span class="tag">Indicator</span>
+            <h3>Leadership_Detection</h3>
+            <p>Compares NQ, ES, and YM against their average ranges and colors price by the current market leader.</p>
+            <p><strong>Script:</strong> <code>scripts/indicators/Leadership_Detection.thinkscript</code></p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="image-placeholder">Add gap distance chart screenshot here</div>
+          <div class="card-body">
+            <span class="tag">Indicator</span>
+            <h3>GapDistance_Threshold</h3>
+            <p>Displays prior-close to current-open gap values above or below candles and flags threshold-sized gaps with chevrons.</p>
+            <p><strong>Script:</strong> <code>scripts/indicators/GapDistance_Threshold.thinkscript</code></p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="image-placeholder">Add earnings breakout chart screenshot here</div>
+          <div class="card-body">
+            <span class="tag">Indicator</span>
+            <h3>Earnings_Breakout</h3>
+            <p>Highlights post-earnings gap direction, draws the earnings reaction range, and marks the first breakout above or below that zone.</p>
+            <p><strong>Script:</strong> <code>scripts/indicators/Earnings_Breakout.thinkscript</code></p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

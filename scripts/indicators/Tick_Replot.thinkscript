@@ -1,0 +1,73 @@
+# Tick_Replot
+# Plot $tick data in an easier to read format
+# Written by Solidago
+
+input showPricePlot = no;
+input symbolName = "$TICK";
+input outlineWidth = 2;
+input zeroLineWidth = 1;
+input zeroLineStyle = Curve.MEDIUM_DASH;
+input showYLines = yes;
+input yLine1 = 1000;
+input yLine2 = 500;
+input yLine3 = -500;
+input yLine4 = -1000;
+input yLineStyle = Curve.SHORT_DASH;
+input yLineWeight = 1;
+
+def tickValue = close(symbolName);
+
+plot Zero = 0;
+Zero.SetDefaultColor(Color.GRAY);
+Zero.SetLineWeight(zeroLineWidth);
+Zero.SetStyle(zeroLineStyle);
+Zero.HideTitle();
+
+plot TickPlot = tickValue;
+TickPlot.SetLineWeight(outlineWidth);
+TickPlot.SetPaintingStrategy(PaintingStrategy.LINE);
+TickPlot.AssignValueColor(
+    if tickValue > 0 then Color.DARK_GREEN
+    else if tickValue < 0 then Color.DARK_RED
+    else Color.GRAY
+);
+TickPlot.HideTitle();
+
+AddCloud(
+    if tickValue > 0 then tickValue else Double.NaN,
+    0,
+    Color.GREEN,
+    Color.GREEN
+);
+
+AddCloud(
+    0,
+    if tickValue < 0 then tickValue else Double.NaN,
+    Color.RED,
+    Color.RED
+);
+
+plot Y1 = if showYLines then yLine1 else Double.NaN;
+plot Y2 = if showYLines then yLine2 else Double.NaN;
+plot Y3 = if showYLines then yLine3 else Double.NaN;
+plot Y4 = if showYLines then yLine4 else Double.NaN;
+
+Y1.SetDefaultColor(Color.DARK_GRAY);
+Y1.SetStyle(yLineStyle);
+Y1.SetLineWeight(yLineWeight);
+Y1.HideTitle();
+
+Y2.SetDefaultColor(Color.DARK_GRAY);
+Y2.SetStyle(yLineStyle);
+Y2.SetLineWeight(yLineWeight);
+Y2.HideTitle();
+
+Y3.SetDefaultColor(Color.DARK_GRAY);
+Y3.SetStyle(yLineStyle);
+Y3.SetLineWeight(yLineWeight);
+Y3.HideTitle();
+
+Y4.SetDefaultColor(Color.DARK_GRAY);
+Y4.SetStyle(yLineStyle);
+Y4.SetLineWeight(yLineWeight);
+Y4.HideTitle();

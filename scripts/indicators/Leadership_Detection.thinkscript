@@ -1,0 +1,44 @@
+#Leadership Between DOW/NDAQ/SPX
+# This script calculates the average daily range for the dow jones, nasdaq and s&p500, after calculating those ranges all indices session ranges are checked against their own averages on a percentile basis. The index that has exceeded its average range by the greatest degree dictates the coloring of any given candlestick. 
+# Written by Solidago
+declare once_per_bar;
+
+input symNQ = "/NQ";
+input symES = "/ES";
+input symYM = "/YM";
+
+def closeNQ = close(symbol = symNQ);
+def closeES = close(symbol = symES);
+def closeYM = close(symbol = symYM);
+
+def rangeNQ = high(symbol = symNQ) - low(symbol = symNQ);
+def rangeES = high(symbol = symES) - low(symbol = symES);
+def rangeYM = high(symbol = symYM) - low(symbol = symYM);
+
+def avgRangeNQ = Average(rangeNQ, 30);
+def avgRangeES = Average(rangeES, 30);
+def avgRangeYM = Average(rangeYM, 30);
+
+def pctChangeNQ = (closeNQ - closeNQ[1]) / avgRangeNQ * 100;
+def pctChangeES = (closeES - closeES[1]) / avgRangeES * 100;
+def pctChangeYM = (closeYM - closeYM[1]) / avgRangeYM * 100;
+
+def absMaxChange = Max(AbsValue(pctChangeNQ), Max(AbsValue(pctChangeES), AbsValue(pctChangeYM)));
+
+def leader = if AbsValue(pctChangeNQ) == absMaxChange then 1
+             else if AbsValue(pctChangeES) == absMaxChange then 2
+             else 3;
+
+AssignPriceColor(
+    if leader == 1 then Color.DARK_GRAY
+    else if leader == 2 then Color.DARK_ORANGE
+    else Color.BLUE
+);
+
+rec grayCount = if leader == 1 then grayCount[1] + 1 else grayCount[1];
+rec orangeCount = if leader == 2 then orangeCount[1] + 1 else orangeCount[1];
+rec blueCount = if leader == 3 then blueCount[1] + 1 else blueCount[1];
+
+AddLabel(1, "NQ: " + grayCount, Color.DARK_GRAY);
+AddLabel(1, "ES: " + orangeCount, Color.DARK_ORANGE);
+AddLabel(1, "YM: " + blueCount, Color.BLUE);

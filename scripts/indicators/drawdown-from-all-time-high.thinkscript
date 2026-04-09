@@ -1,0 +1,28 @@
+# Drawdown From All Time High
+# Rolling measurement of ATH plotted as zero line, drawdown plotted on a percentage basis
+# Written by Solidago
+
+declare lower;
+
+def allTimeHigh = CompoundValue(1, Max(high, allTimeHigh[1]), high);
+def drawdownPercent = ((close - allTimeHigh) / allTimeHigh) * 100;
+
+plot Drawdown = drawdownPercent;
+plot ZeroLine = 0;
+
+Drawdown.SetDefaultColor(Color.RED);
+Drawdown.SetLineWeight(2);
+Drawdown.AssignValueColor(
+    if drawdownPercent > -5 then Color.YELLOW
+    else if drawdownPercent > -10 then Color.ORANGE
+    else if drawdownPercent > -20 then Color.DARK_ORANGE
+    else Color.RED
+);
+
+ZeroLine.SetDefaultColor(Color.GRAY);
+ZeroLine.SetStyle(Curve.LONG_DASH);
+
+def maxDrawdown = LowestAll(drawdownPercent);
+AddLabel(yes, "Current Drawdown: " + Round(drawdownPercent, 2) + "%", 
+    if drawdownPercent > -5 then Color.YELLOW else Color.RED);
+AddLabel(yes, "Max Drawdown: " + Round(maxDrawdown, 2) + "%", Color.DARK_RED);

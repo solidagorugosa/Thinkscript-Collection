@@ -1,0 +1,257 @@
+# 830_Data_TradeModel
+# Due to limitations with thinkscript, user should account for adjusting for the eastern timezone// adjust application settings to display eastern time on the x axis
+# A simple trade model ideally utilized on sessions with large impact data releases at 0830 EST ; NQ or ES futures
+# Alternative & less ideal detection methods, pre-set to the largest range candle, or the largest range imbalance to appear between 0800 and 0900 EST for use on days absent high impact economic releases at 0830 EST
+# Probable move detection determind by 0930 EST opening price relative to prior session close; assumptions based on data supporting a likely return of at least 50% of that range within the first hour and a half of new york session
+# Ideal conditions; "probable move" should not be in opposition to a daily timeframe high or low that has yet to be breached since being formed of closer proximity than the prior days close ; high volatility ; event driven ; frequent asymettrical runs on price ; discretionary analysis should lean towards an expansive move towards the prior sessions close
+# Profit targets are quartile plots (dashed lines) of an average sessions range anchored to the candle selected by the detection criteria ; in good market conditions a stop loss can be placed at the interior projection on the same side of the detected candle after entry, in less probable conditions a stop must be placed at the opposite exterior projection of entry ; entry to be taken upon closing outside the exterior projections after breaching or opening a candle within the projections for the second time
+# Written by Solidago
+
+input candleTime = 0830;
+input showplot = yes;
+input showTodayOnly = yes;
+input showProjections = yes;
+input ADR_Count = 30;
+input showADRLevels = yes;
+input detectionMode = {default "Time Anchored", "Largest Range", "Largest Imbalance"};
+input imbalanceThreshold = 0.25;
+
+def targetCandle;
+def newDay = GetDay() != GetDay()[1];
+
+def timeAnchoredCandle = SecondsFromTime(candleTime) >= 0 and SecondsFromTime(candleTime) < 60;
+
+def inTimeWindow = SecondsFromTime(0800) >= 0 and SecondsFromTime(0900) < 0;
+def candleRange = high - low;
+
+def maxRange = if newDay then 0 
+               else if inTimeWindow and candleRange > maxRange[1] then candleRange 
+               else maxRange[1];
+
+def largestCandleHigh = if newDay then 0 
+                        else if inTimeWindow and candleRange > maxRange[1] then high 
+                        else largestCandleHigh[1];
+
+def largestCandleLow = if newDay then 0 
+                       else if inTimeWindow and candleRange > maxRange[1] then low 
+                       else largestCandleLow[1];
+
+def L1 = low;
+def H3 = high[2];
+def H1 = high;
+def L3 = low[2];
+
+def middleCandleHigh = high[1];
+def middleCandleLow = low[1];
+
+def fvgBullPriceDiff = AbsValue(H3 - L1);
+def fvgBullPctg = if fvgBullPriceDiff > imbalanceThreshold then 1 else 0;
+def FVGUp = if H3 < L1 then 1 else 0;
+def bullImbalance = FVGUp and fvgBullPctg;
+
+def fvgBearPriceDiff = AbsValue(H1 - L3);
+def fvgBearPctg = if fvgBearPriceDiff > imbalanceThreshold then 1 else 0;
+def FVGDown = if L3 > H1 then 1 else 0;
+def bearImbalance = FVGDown and fvgBearPctg;
+
+def currentImbalanceSize = if bullImbalance then fvgBullPriceDiff 
+                           else if bearImbalance then fvgBearPriceDiff 
+                           else 0;
+
+def anyImbalance = bullImbalance or bearImbalance;
+
+def maxImbalance = if newDay then 0
+                   else if inTimeWindow and anyImbalance and currentImbalanceSize > maxImbalance[1] then currentImbalanceSize
+                   else maxImbalance[1];
+
+def largestImbalanceHigh = if newDay then 0
+                           else if inTimeWindow and anyImbalance and currentImbalanceSize > maxImbalance[1] then middleCandleHigh
+                           else largestImbalanceHigh[1];
+
+def largestImbalanceLow = if newDay then 0
+                          else if inTimeWindow and anyImbalance and currentImbalanceSize > maxImbalance[1] then middleCandleLow
+                          else largestImbalanceLow[1];
+
+def largestImbalanceDetected = if newDay then no
+                               else if inTimeWindow and anyImbalance and currentImbalanceSize > maxImbalance[1] then yes
+                               else largestImbalanceDetected[1];
+
+targetCandle = if detectionMode == detectionMode."Time Anchored" 
+               then timeAnchoredCandle 
+               else if detectionMode == detectionMode."Largest Range"
+               then (inTimeWindow and candleRange == maxRange and candleRange > 0)
+               else (inTimeWindow and anyImbalance and currentImbalanceSize == maxImbalance and currentImbalanceSize > 0);
+
+def hrange = if detectionMode == detectionMode."Time Anchored" 
+             then (if timeAnchoredCandle then high else hrange[1])
+             else if detectionMode == detectionMode."Largest Range"
+             then (if SecondsFromTime(0900) >= 0 then largestCandleHigh else hrange[1])
+             else (if SecondsFromTime(0900) >= 0 then largestImbalanceHigh else hrange[1]);
+
+def lrange = if detectionMode == detectionMode."Time Anchored" 
+             then (if timeAnchoredCandle then low else lrange[1])
+             else if detectionMode == detectionMode."Largest Range"
+             then (if SecondsFromTime(0900) >= 0 then largestCandleLow else lrange[1])
+             else (if SecondsFromTime(0900) >= 0 then largestImbalanceLow else lrange[1]);
+
+def isToday = GetDay() == GetLastDay();
+def showData = if showTodayOnly then isToday else yes;
+
+def startProjection = if detectionMode == detectionMode."Time Anchored" 
+                      then SecondsFromTime(candleTime) >= 60 
+                      else SecondsFromTime(0900) >= 0;
+
+def measuredRange = hrange - lrange;
+
+plot xhrange = if !showplot or !showData then Double.NaN 
+               else if startProjection then hrange 
+               else Double.NaN;
+xhrange.SetDefaultColor(Color.BLACK);
+
+plot lhrange = if !showplot or !showData then Double.NaN 
+               else if startProjection then lrange 
+               else Double.NaN;
+lhrange.SetDefaultColor(Color.BLACK);
+
+def showProjectionsNow = showProjections and startProjection and showData;
+
+plot projUp25 = if showProjectionsNow then hrange + 0.25 * measuredRange else Double.NaN;
+projUp25.SetDefaultColor(Color.BLUE);
+projUp25.HideBubble();
+
+plot projUp50 = if showProjectionsNow then hrange + 0.5 * measuredRange else Double.NaN;
+projUp50.SetDefaultColor(Color.BLUE);
+projUp50.HideBubble();
+
+plot projUp75 = if showProjectionsNow then hrange + 0.75 * measuredRange else Double.NaN;
+projUp75.SetDefaultColor(Color.BLUE);
+projUp75.HideBubble();
+
+plot projUp100 = if showProjectionsNow then hrange + measuredRange else Double.NaN;
+projUp100.SetDefaultColor(Color.BLUE);
+projUp100.HideBubble();
+
+plot projDown25 = if showProjectionsNow then lrange - 0.25 * measuredRange else Double.NaN;
+projDown25.SetDefaultColor(Color.RED);
+projDown25.HideBubble();
+
+plot projDown50 = if showProjectionsNow then lrange - 0.5 * measuredRange else Double.NaN;
+projDown50.SetDefaultColor(Color.RED);
+projDown50.HideBubble();
+
+plot projDown75 = if showProjectionsNow then lrange - 0.75 * measuredRange else Double.NaN;
+projDown75.SetDefaultColor(Color.RED);
+projDown75.HideBubble();
+
+plot projDown100 = if showProjectionsNow then lrange - measuredRange else Double.NaN;
+projDown100.SetDefaultColor(Color.RED);
+projDown100.HideBubble();
+
+# ADR Levels
+def dailyHigh = high(period = AggregationPeriod.DAY);
+def dailyLow = low(period = AggregationPeriod.DAY);
+def dailyRange = dailyHigh - dailyLow;
+def sum = Sum(dailyRange, ADR_Count);
+def avgRange = sum / ADR_Count;
+
+def midpoint = (hrange + lrange) / 2; 
+
+plot ADR_25 = if showADRLevels and startProjection and showData then midpoint + 0.25 * avgRange else Double.NaN;
+ADR_25.SetDefaultColor(Color.BLACK);
+ADR_25.SetStyle(Curve.SHORT_DASH);
+
+plot ADR_50 = if showADRLevels and startProjection and showData then midpoint + 0.5 * avgRange else Double.NaN;
+ADR_50.SetDefaultColor(Color.BLACK);
+ADR_50.SetStyle(Curve.SHORT_DASH);
+
+plot ADR_75 = if showADRLevels and startProjection and showData then midpoint + 0.75 * avgRange else Double.NaN;
+ADR_75.SetDefaultColor(Color.BLACK);
+ADR_75.SetStyle(Curve.SHORT_DASH);
+
+plot ADR_100 = if showADRLevels and startProjection and showData then midpoint + avgRange else Double.NaN;
+ADR_100.SetDefaultColor(Color.BLACK);
+ADR_100.SetStyle(Curve.SHORT_DASH);
+
+plot ADR_Neg_25 = if showADRLevels and startProjection and showData then midpoint - 0.25 * avgRange else Double.NaN;
+ADR_Neg_25.SetDefaultColor(Color.BLACK);
+ADR_Neg_25.SetStyle(Curve.SHORT_DASH);
+
+plot ADR_Neg_50 = if showADRLevels and startProjection and showData then midpoint - 0.5 * avgRange else Double.NaN;
+ADR_Neg_50.SetDefaultColor(Color.BLACK);
+ADR_Neg_50.SetStyle(Curve.SHORT_DASH);
+
+plot ADR_Neg_75 = if showADRLevels and startProjection and showData then midpoint - 0.75 * avgRange else Double.NaN;
+ADR_Neg_75.SetDefaultColor(Color.BLACK);
+ADR_Neg_75.SetStyle(Curve.SHORT_DASH);
+
+plot ADR_Neg_100 = if showADRLevels and startProjection and showData then midpoint - avgRange else Double.NaN;
+ADR_Neg_100.SetDefaultColor(Color.BLACK);
+ADR_Neg_100.SetStyle(Curve.SHORT_DASH);
+
+# Prior Day Close vs 0930 Price Label
+def priorDayClose = close(period = AggregationPeriod.DAY)[1];
+def at0930 = SecondsFromTime(0930) >= 0 and SecondsFromTime(0930) < 60;
+def price0930 = if at0930 then close else price0930[1];
+def showLabel = SecondsFromTime(0930) >= 0;
+
+# Probable move conditions
+def probableMoveHigher = price0930 < priorDayClose;
+def probableMoveLower = price0930 >= priorDayClose;
+
+# Calculate highest and lowest projections
+def highestProjection = hrange + measuredRange;
+def lowestProjection = lrange - measuredRange;
+
+# Track breakout conditions
+def brokeAboveHighest = close[1] > highestProjection;
+def brokeBelowLowest = close[1] < lowestProjection;
+
+# Bullish setup: Previous candle closed above highest projection, current candle wicks below and closes above
+def bullishRetraceCondition = brokeAboveHighest and 
+                               probableMoveHigher and 
+                               low < highestProjection and 
+                               close > highestProjection and
+                               showData;
+
+# Bearish setup: Previous candle closed below lowest projection, current candle wicks above and closes below
+def bearishRetraceCondition = brokeBelowLowest and 
+                               probableMoveLower and 
+                               high > lowestProjection and 
+                               close < lowestProjection and
+                               showData;
+
+# Track if arrow has already been plotted this session
+def bullishArrowPlotted = if newDay then no
+                          else if bullishRetraceCondition then yes
+                          else bullishArrowPlotted[1];
+
+def bearishArrowPlotted = if newDay then no
+                          else if bearishRetraceCondition then yes
+                          else bearishArrowPlotted[1];
+
+# Only plot arrow if it hasn't been plotted yet this session
+def showBullishArrow = bullishRetraceCondition and !bullishArrowPlotted[1];
+def showBearishArrow = bearishRetraceCondition and !bearishArrowPlotted[1];
+
+# Plot arrows
+plot BullishArrow = if showBullishArrow then low else Double.NaN;
+BullishArrow.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
+BullishArrow.SetDefaultColor(Color.BLACK);
+BullishArrow.SetLineWeight(3);
+
+plot BearishArrow = if showBearishArrow then high else Double.NaN;
+BearishArrow.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
+BearishArrow.SetDefaultColor(Color.BLACK);
+BearishArrow.SetLineWeight(3);
+
+AddLabel(showLabel and isToday, 
+         if price0930 < priorDayClose then "Probable Move Higher" else "Probable Move Lower", 
+         Color.BLACK);
+
+AddLabel(yes, 
+         if detectionMode == detectionMode."Time Anchored" 
+         then "Mode: Time (" + candleTime + ")" 
+         else if detectionMode == detectionMode."Largest Range"
+         then "Mode: Largest Range (0800-0900)"
+         else "Mode: Largest Imbalance (0800-0900)", 
+         Color.BLACK);

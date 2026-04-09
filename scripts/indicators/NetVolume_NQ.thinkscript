@@ -1,0 +1,26 @@
+#NetVolumeNQ
+# To be used to determine potential capitulatory events, pulls & adds volume traded from common vehicles for interaction with Nasdaq
+# Written by Solidago
+
+declare lower;
+
+input secondarySymbol = "/MNQ";
+input thirdSymbol = "QQQ";
+input Fourth = "TQQQ";
+input Fifth = "SQQQ";
+
+def primaryVolume = volume;
+def secondaryVolume = volume(symbol = secondarySymbol);
+def thirdVolume = volume(symbol = thirdSymbol);
+def fourthv = volume(symbol = fourth);
+def fifthv = volume(symbol = fifth);
+
+plot CombinedVolume = primaryVolume + secondaryVolume + thirdVolume + fourthv + fifthv;
+CombinedVolume.SetPaintingStrategy(PaintingStrategy.HISTOGRAM);
+CombinedVolume.SetDefaultColor(Color.black);
+CombinedVolume.SetLineWeight(1);
+
+AddLabel(yes, "Net Volume: " + CombinedVolume, Color.BLACK);
+
+input length = 100;
+plot Avg = Average(combinedvolume, length);

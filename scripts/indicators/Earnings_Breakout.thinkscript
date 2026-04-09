@@ -1,0 +1,119 @@
+"Earnings_Breakout"
+
+# Earnings Range Rectangle with Breakout Statistics
+# Red/Green chevrons print on the day following an ER release, indicating if the opening price was lower or higher than the close of the session ER was reported. The clouds are drawn over a user definable period of sessions, measuring the range over that period. Arrows print to indicate whether we traded below or above that range first once the defined period has come to an end
+# Written by Solidago
+
+declare upper;
+
+input rangePeriod = 5; # Number of candles to define the range
+input showLabels = yes; # Show statistics labels
+
+def hasEarnings = HasEarnings();
+
+def earningsBar = CompoundValue(1, if hasEarnings then BarNumber() else earningsBar[1], 0);
+def barsFromEarnings = BarNumber() - earningsBar;
+
+def inRangePeriod = barsFromEarnings > 0 and barsFromEarnings <= rangePeriod;
+
+def rangeHigh = CompoundValue(1, 
+                if hasEarnings then high 
+                else if inRangePeriod and high > rangeHigh[1] then high 
+                else if inRangePeriod then rangeHigh[1]
+                else rangeHigh[1], high);
+
+def rangeLow = CompoundValue(1,
+               if hasEarnings then low 
+               else if inRangePeriod and low < rangeLow[1] then low 
+               else if inRangePeriod then rangeLow[1]
+               else rangeLow[1], low);
+
+# Draw the rectangle with proper cloud bounds
+def cloudUpper = if inRangePeriod then rangeHigh else Double.NaN;
+def cloudLower = if inRangePeriod then rangeLow else Double.NaN;
+
+AddCloud(cloudUpper, cloudLower, Color.BLACK, Color.BLACK);
+
+plot upperBand = if inRangePeriod then rangeHigh else Double.NaN;
+plot lowerBand = if inRangePeriod then rangeLow else Double.NaN;
+
+upperBand.SetDefaultColor(Color.BLACK);
+upperBand.SetLineWeight(2);
+lowerBand.SetDefaultColor(Color.BLACK);
+lowerBand.SetLineWeight(2);
+
+# Track breakouts after the range period ends
+def afterRangePeriod = barsFromEarnings > rangePeriod;
+def previousRangeHigh = CompoundValue(1,
+                        if barsFromEarnings == rangePeriod + 1 then rangeHigh[1] 
+                        else previousRangeHigh[1], high);
+def previousRangeLow = CompoundValue(1,
+                       if barsFromEarnings == rangePeriod + 1 then rangeLow[1] 
+                       else previousRangeLow[1], low);
+
+# Track if ANY breakout has occurred (avoids circular reference)
+def anyBreakout = CompoundValue(1,
+                  if hasEarnings then 0
+                  else if afterRangePeriod and anyBreakout[1] == 0 and (high > previousRangeHigh or low < previousRangeLow) then 1
+                  else anyBreakout[1], 0);
+
+# Detect first breakout after range period - now independent of each other
+def brokeAboveFirst = CompoundValue(1,
+                      if hasEarnings then 0
+                      else if afterRangePeriod and anyBreakout[1] == 0 and high > previousRangeHigh then 1
+                      else brokeAboveFirst[1], 0);
+
+def brokeBelowFirst = CompoundValue(1,
+                      if hasEarnings then 0
+                      else if afterRangePeriod and anyBreakout[1] == 0 and low < previousRangeLow then 1
+                      else brokeBelowFirst[1], 0);
+
+# Count total breakouts
+def countAbove = CompoundValue(1,
+                 if hasEarnings and brokeAboveFirst[1] == 1 then countAbove[1] + 1
+                 else countAbove[1], 0);
+
+def countBelow = CompoundValue(1,
+                 if hasEarnings and brokeBelowFirst[1] == 1 then countBelow[1] + 1
+                 else countBelow[1], 0);
+
+def earningsClose = CompoundValue(1, if hasEarnings then close else earningsClose[1], close);
+
+def nextCandleAfterEarnings = barsFromEarnings == 1;
+def gappedUp = nextCandleAfterEarnings and open > earningsClose[1];
+def gappedDown = nextCandleAfterEarnings and open < earningsClose[1];
+
+def countGapUp = CompoundValue(1,
+                 if gappedUp then countGapUp[1] + 1
+                 else countGapUp[1], 0);
+
+def countGapDown = CompoundValue(1,
+                   if gappedDown then countGapDown[1] + 1
+                   else countGapDown[1], 0);
+
+plot gapUpWedge = if gappedUp then low else Double.NaN;
+plot gapDownWedge = if gappedDown then high else Double.NaN;
+
+gapUpWedge.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
+gapUpWedge.SetDefaultColor(Color.GREEN);
+gapUpWedge.SetLineWeight(3);
+
+gapDownWedge.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_DOWN);
+gapDownWedge.SetDefaultColor(Color.RED);
+gapDownWedge.SetLineWeight(3);
+
+AddLabel(showLabels, "Above Range: " + countAbove, Color.BLACK);
+AddLabel(showLabels, "Below Range: " + countBelow, Color.BLACK);
+AddLabel(showLabels, "Day after +: " + countGapUp, Color.BLACK);
+AddLabel(showLabels, "Day after -: " + countGapDown, Color.BLACK);
+
+plot breakAboveMark = if afterRangePeriod and brokeAboveFirst == 1 and brokeAboveFirst[1] == 0 then high else Double.NaN;
+plot breakBelowMark = if afterRangePeriod and brokeBelowFirst == 1 and brokeBelowFirst[1] == 0 then low else Double.NaN;
+
+breakAboveMark.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
+breakAboveMark.SetDefaultColor(Color.BLACK);
+breakAboveMark.SetLineWeight(3);
+
+breakBelowMark.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
+breakBelowMark.SetDefaultColor(Color.BLACK);
+breakBelowMark.SetLineWeight(3);

@@ -1,0 +1,48 @@
+#AverageRangeDraw_lite
+#This script calculates the average range over a user defined period of days, draws and adjusts lines along the daily high and low, and draws a projected high and low for the day based on the sessions current high and low, relative to the calculated average range. 
+#Written by Solidago
+
+input asset = close;
+input timePeriod = 30;
+
+def dailyHigh = high(period = AggregationPeriod.DAY);
+def dailyLow = low(period = AggregationPeriod.DAY);
+def dailyRange = dailyHigh - dailyLow;
+def sum = Sum(dailyRange, timePeriod);
+def avgRange = sum / timePeriod;
+
+AddLabel(yes, "Avg: " + avgRange, color.WHITE);
+
+def currentHigh = high(period = AggregationPeriod.DAY);
+def currentLow = low(period = AggregationPeriod.DAY);
+def currentRange = currentHigh - currentLow;
+
+AddLabel(yes, "DR: " + currentRange, color.white);
+
+plot dailyHighLine = dailyHigh;
+plot dailyLowLine = dailyLow;
+dailyHighLine.SetDefaultColor(color.orange);
+dailyhighline.setstyle(Curve.SHORT_DASH);
+dailyHighLine.SetLineWeight(2);
+dailyLowLine.SetDefaultColor(color.orange);
+dailyLowline.setstyle(Curve.SHORT_DASH);
+dailyLowLine.SetLineWeight(2);
+
+plot upperLine = dailyHighLine - avgRange;
+plot lowerLine = dailyLowLine + avgRange;
+upperLine.SetDefaultColor(color.red);
+upperLine.SetLineWeight(2);
+lowerLine.SetDefaultColor(color.green);
+lowerLine.SetLineWeight(2);
+
+def openPrice = open(period = AggregationPeriod.DAY);
+
+plot upperOpenLine = openPrice + avgRange / 2;
+plot lowerOpenLine = openPrice - avgRange / 2;
+upperOpenLine.SetDefaultColor(color.white);
+upperOpenLine.SetLineWeight(1);
+lowerOpenLine.SetDefaultColor(color.white);
+lowerOpenLine.SetLineWeight(1);
+
+def diffFromHigh = dailyhigh - close();
+def diffFromLow = close() - dailylow;

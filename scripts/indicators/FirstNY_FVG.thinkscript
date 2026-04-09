@@ -1,0 +1,113 @@
+# FirstNY_FVG
+# Script to identify and print fvg pattern, limited to only plotting the first to present after the New York session open and allowed to carry over into the following session until conditions are met again
+# written by Solidago
+# swap def for input to turn on extra controls
+
+input ShowLines = yes;
+input ShowCloud = yes;
+input ChartTime = no;
+input threshold = 0.25;
+input aggregation = AggregationPeriod.MIN;
+def startTime = 0932;
+def endTime = 1700;
+input ShowTodayOnly = no;
+input ExtendLines = yes;
+##
+
+def na = Double.NaN;
+def afterStartTime = SecondsFromTime(startTime) >= 0;
+def beforeEndTime = SecondsTillTime(endTime) >= 0;
+def validTime = afterStartTime and beforeEndTime;
+
+def newSession = GetDay() != GetDay()[1];
+
+script nz {
+    input data = 1;
+    input repl = 0;
+    def ret_val = if IsNaN(data) then repl else data;
+    plot return = ret_val;
+}
+
+def L1;
+def H3;
+def H1;
+def L3;
+
+if ChartTime then {
+    L1 = low;
+    H3 = high[2];
+    H1 = high;
+    L3 = low[2];
+} else {
+    L1 = low(period = aggregation);
+    H3 = high(period = aggregation)[2];
+    H1 = high(period = aggregation);
+    L3 = low(period = aggregation)[2];
+}
+
+def fvgBullPriceDiff = AbsValue(H3 - L1);
+def fvgBearPriceDiff = AbsValue(H1 - L3);
+
+def fvgBullPctg = if fvgBullPriceDiff > threshold then 1 else 0;
+def FVGUp = if H3 < L1 then 1 else 0;
+def conditionBullMet = FVGUp and fvgBullPctg and validTime;
+
+def fvgBearPctg = if fvgBearPriceDiff > threshold then 1 else 0;
+def FVGDown = if L3 > H1 then 1 else 0;
+def conditionBearMet = FVGDown and fvgBearPctg and validTime;
+
+def firstBullMet = CompoundValue(1, if newSession then conditionBullMet else firstBullMet[1] or conditionBullMet, conditionBullMet);
+def firstBearMet = CompoundValue(1, if newSession then conditionBearMet else firstBearMet[1] or conditionBearMet, conditionBearMet);
+
+def plotBullH = if conditionBullMet and !firstBullMet[1] then H3 else na;
+def plotBullL = if conditionBullMet and !firstBullMet[1] then L1 else na;
+def plotBearH = if conditionBearMet and !firstBearMet[1] then H1 else na;
+def plotBearL = if conditionBearMet and !firstBearMet[1] then L3 else na;
+
+def showBullLine = firstBullMet and !firstBearMet;
+def showBearLine = firstBearMet and !firstBullMet;
+
+rec BullHValue = if ExtendLines and (showBullLine or !IsNaN(BullHValue[1])) then nz(plotBullH, BullHValue[1]) else plotBullH;
+rec BullLValue = if ExtendLines and (showBullLine or !IsNaN(BullLValue[1])) then nz(plotBullL, BullLValue[1]) else plotBullL;
+rec BearHValue = if ExtendLines and (showBearLine or !IsNaN(BearHValue[1])) then nz(plotBearH, BearHValue[1]) else plotBearH;
+rec BearLValue = if ExtendLines and (showBearLine or !IsNaN(BearLValue[1])) then nz(plotBearL, BearLValue[1]) else plotBearL;
+
+plot BullHLine = BullHValue;
+plot BullLLine = BullLValue;
+plot BearHLine = BearHValue;
+plot BearLLine = BearLValue;
+
+BullHLine.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+BullHLine.SetDefaultColor(CreateColor(49, 121, 245));
+BullHLine.SetHiding(!ShowLines);
+
+BullLLine.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+BullLLine.SetDefaultColor(CreateColor(49, 121, 245));
+BullLLine.SetHiding(!ShowLines);
+
+BearHLine.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+BearHLine.SetDefaultColor(CreateColor(194, 24, 91));
+BearHLine.SetHiding(!ShowLines);
+
+BearLLine.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+BearLLine.SetDefaultColor(CreateColor(194, 24, 91));
+BearLLine.SetHiding(!ShowLines);
+
+def todayOnly = GetDay() == GetDay()[1];
+
+BullHLine.SetHiding(!ShowLines or (ShowTodayOnly and !todayOnly));
+BullLLine.SetHiding(!ShowLines or (ShowTodayOnly and !todayOnly));
+BearHLine.SetHiding(!ShowLines or (ShowTodayOnly and !todayOnly));
+BearLLine.SetHiding(!ShowLines or (ShowTodayOnly and !todayOnly));
+
+AddCloud(
+    if ShowCloud and !IsNaN(BullHLine) and !IsNaN(BullLLine) and (!ShowTodayOnly or todayOnly) then BullLLine else na,
+    if ShowCloud and !IsNaN(BullHLine) and !IsNaN(BullLLine) and (!ShowTodayOnly or todayOnly) then BullHLine else na,
+    CreateColor(144, 191, 249)
+);
+
+AddCloud(
+    if ShowCloud and !IsNaN(BearHLine) and !IsNaN(BearLLine) and (!ShowTodayOnly or todayOnly) then BearHLine else na,
+    if ShowCloud and !IsNaN(BearHLine) and !IsNaN(BearLLine) and (!ShowTodayOnly or todayOnly) then BearLLine else na,
+    CreateColor(244, 143, 177)
+);
