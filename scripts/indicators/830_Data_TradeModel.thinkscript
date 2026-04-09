@@ -147,7 +147,6 @@ plot projDown100 = if showProjectionsNow then lrange - measuredRange else Double
 projDown100.SetDefaultColor(Color.RED);
 projDown100.HideBubble();
 
-# ADR Levels
 def dailyHigh = high(period = AggregationPeriod.DAY);
 def dailyLow = low(period = AggregationPeriod.DAY);
 def dailyRange = dailyHigh - dailyLow;
@@ -188,39 +187,32 @@ plot ADR_Neg_100 = if showADRLevels and startProjection and showData then midpoi
 ADR_Neg_100.SetDefaultColor(Color.BLACK);
 ADR_Neg_100.SetStyle(Curve.SHORT_DASH);
 
-# Prior Day Close vs 0930 Price Label
 def priorDayClose = close(period = AggregationPeriod.DAY)[1];
 def at0930 = SecondsFromTime(0930) >= 0 and SecondsFromTime(0930) < 60;
 def price0930 = if at0930 then close else price0930[1];
 def showLabel = SecondsFromTime(0930) >= 0;
 
-# Probable move conditions
 def probableMoveHigher = price0930 < priorDayClose;
 def probableMoveLower = price0930 >= priorDayClose;
 
-# Calculate highest and lowest projections
 def highestProjection = hrange + measuredRange;
 def lowestProjection = lrange - measuredRange;
 
-# Track breakout conditions
 def brokeAboveHighest = close[1] > highestProjection;
 def brokeBelowLowest = close[1] < lowestProjection;
 
-# Bullish setup: Previous candle closed above highest projection, current candle wicks below and closes above
 def bullishRetraceCondition = brokeAboveHighest and 
                                probableMoveHigher and 
                                low < highestProjection and 
                                close > highestProjection and
                                showData;
 
-# Bearish setup: Previous candle closed below lowest projection, current candle wicks above and closes below
 def bearishRetraceCondition = brokeBelowLowest and 
                                probableMoveLower and 
                                high > lowestProjection and 
                                close < lowestProjection and
                                showData;
 
-# Track if arrow has already been plotted this session
 def bullishArrowPlotted = if newDay then no
                           else if bullishRetraceCondition then yes
                           else bullishArrowPlotted[1];
@@ -229,11 +221,9 @@ def bearishArrowPlotted = if newDay then no
                           else if bearishRetraceCondition then yes
                           else bearishArrowPlotted[1];
 
-# Only plot arrow if it hasn't been plotted yet this session
 def showBullishArrow = bullishRetraceCondition and !bullishArrowPlotted[1];
 def showBearishArrow = bearishRetraceCondition and !bearishArrowPlotted[1];
 
-# Plot arrows
 plot BullishArrow = if showBullishArrow then low else Double.NaN;
 BullishArrow.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
 BullishArrow.SetDefaultColor(Color.BLACK);
