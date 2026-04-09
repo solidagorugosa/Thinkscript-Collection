@@ -3,7 +3,7 @@ const indicators = [
     id: "830_Data_TradeModel",
     title: "830_Data_TradeModel",
     script: "scripts/indicators/830_Data_TradeModel.thinkscript",
-    images: ["DATA830_TRADEMODEL.JPG"],
+    images: ["images/DATA830_TRADEMODEL.JPG"],
     description:
       "Anchors the 8:30 EST data-release range and projects ADR-based targets for event-driven futures sessions."
   },
@@ -11,7 +11,7 @@ const indicators = [
     id: "AverageRangeDraw_lite",
     title: "AverageRangeDraw_lite",
     script: "scripts/indicators/AverageRangeDraw_lite.thinkscript",
-    images: ["avgrange_drawlite.JPG"],
+    images: ["images/avgrange_drawlite.JPG"],
     description:
       "Calculates average daily range and overlays projected levels from the daily high, low, and open."
   },
@@ -19,7 +19,7 @@ const indicators = [
     id: "Earnings_Breakout",
     title: "Earnings_Breakout",
     script: "scripts/indicators/Earnings_Breakout.thinkscript",
-    images: ["EARNINGS_Breakout.JPG", "EARNINGS_RANGE.JPG"],
+    images: ["images/EARNINGS_Breakout.JPG", "images/EARNINGS_RANGE.JPG"],
     description:
       "Highlights post-earnings gap direction, tracks the earnings reaction range, and marks the first breakout from that zone."
   },
@@ -27,7 +27,7 @@ const indicators = [
     id: "FirstNY_FVG",
     title: "FirstNY_FVG",
     script: "scripts/indicators/FirstNY_FVG.thinkscript",
-    images: ["FirstNY_FVG.JPG"],
+    images: ["images/FirstNY_FVG.JPG"],
     description:
       "Identifies the first fair value gap after the New York open and extends the zone for follow-through analysis."
   },
@@ -35,7 +35,7 @@ const indicators = [
     id: "GapDistance_Threshold",
     title: "GapDistance_Threshold",
     script: "scripts/indicators/GapDistance_Threshold.thinkscript",
-    images: ["GapDistance_Threshhold.JPG"],
+    images: ["images/GapDistance_Threshhold.JPG"],
     description:
       "Displays prior-close to current-open gap values and flags threshold-sized gaps with directional chevrons."
   },
@@ -43,7 +43,7 @@ const indicators = [
     id: "Leadership_Detection",
     title: "Leadership_Detection",
     script: "scripts/indicators/Leadership_Detection.thinkscript",
-    images: ["leadership_detection.JPG"],
+    images: ["images/leadership_detection.JPG"],
     description:
       "Compares NQ, ES, and YM against their average ranges and colors price by the current market leader."
   },
@@ -51,7 +51,7 @@ const indicators = [
     id: "NetVolume_NQ",
     title: "NetVolume_NQ",
     script: "scripts/indicators/NetVolume_NQ.thinkscript",
-    images: ["NetVolume_NQ.JPG"],
+    images: ["images/NetVolume_NQ.JPG"],
     description:
       "Combines traded volume from NQ-linked instruments to show participation and possible capitulatory spikes."
   },
@@ -59,7 +59,7 @@ const indicators = [
     id: "RangeBars_v4",
     title: "RangeBars_v4",
     script: "scripts/indicators/RangeBars_v4.thinkscript",
-    images: ["RangebarsV4.JPG"],
+    images: ["images/RangebarsV4.JPG"],
     description:
       "Shows candle range histograms, moving-average bands, and threshold-based label counts for expansion analysis."
   },
@@ -67,7 +67,7 @@ const indicators = [
     id: "Tick_Replot",
     title: "Tick_Replot",
     script: "scripts/indicators/Tick_Replot.thinkscript",
-    images: ["Tick_Replot.JPG"],
+    images: ["images/Tick_Replot.JPG"],
     description:
       "Replots $TICK with cleaner clouds, a zero line, and threshold markers for intraday breadth context."
   },
@@ -75,7 +75,7 @@ const indicators = [
     id: "drawdown-from-all-time-high",
     title: "Drawdown From All Time High",
     script: "scripts/indicators/drawdown-from-all-time-high.thinkscript",
-    images: ["ATH DRAWdown.JPG"],
+    images: ["images/ATH DRAWdown.JPG"],
     description:
       "Plots the percentage decline from the running all-time high and labels both current and maximum drawdown."
   },
@@ -83,7 +83,7 @@ const indicators = [
     id: "vx_comp",
     title: "vx_comp",
     script: "scripts/indicators/vx_comp.thinkscript",
-    images: ["VX_comp.JPG"],
+    images: ["images/VX_comp.JPG"],
     description:
       "Overlays the VX futures curve to spot contango and backwardation shifts across the volatility term structure."
   }
