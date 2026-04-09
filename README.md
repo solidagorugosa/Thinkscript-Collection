@@ -14,8 +14,3 @@
 | Tick_Replot | [`scripts/indicators/Tick_Replot.thinkscript`](scripts/indicators/Tick_Replot.thinkscript) |
 | drawdown-from-all-time-high | [`scripts/indicators/drawdown-from-all-time-high.thinkscript`](scripts/indicators/drawdown-from-all-time-high.thinkscript) |
 | vx_comp | [`scripts/indicators/vx_comp.thinkscript`](scripts/indicators/vx_comp.thinkscript) |
-
-## 🖼️ Optional Images
-
-If you want previews later, store screenshots under `images/indicators/` using matching filenames.
-
